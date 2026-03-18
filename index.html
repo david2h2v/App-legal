@@ -6,16 +6,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{font-family:Arial;margin:0;background:#f0f2f5;}
-header{background:#1e2a38;color:white;padding:15px;text-align:center;}
-.container{padding:10px;}
-input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc;}
-button{padding:10px;border:none;border-radius:8px;margin:5px 2px;cursor:pointer;background:#1e2a38;color:white;}
-.card{background:white;padding:10px;margin:8px 0;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-.row{display:flex;justify-content:space-between;align-items:center;}
-.small{font-size:13px;color:#555;}
-.menu button{background:#ddd;color:black;}
-.hidden{display:none;}
+body {
+  font-family: Arial;
+  margin:0;
+  background:#f0f2f5;
+}
+header {
+  background:#1e2a38;
+  color:white;
+  padding:15px;
+  text-align:center;
+  font-size:18px;
+}
+.container {
+  padding:10px;
+}
+input {
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+  box-sizing:border-box;
+}
+button {
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  margin:5px 2px 10px 0;
+  cursor:pointer;
+  background:#1e2a38;
+  color:white;
+  box-sizing:border-box;
+}
+.card {
+  background:white;
+  padding:10px;
+  margin:8px 0;
+  border-radius:10px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+.row {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.small {
+  font-size:13px;
+  color:#555;
+  margin-top:3px;
+}
+.menu button {
+  background:#ddd;
+  color:black;
+  margin-left:3px;
+}
+.hidden {
+  display:none;
+}
+#clientes, #juicios {
+  max-height:300px;
+  overflow-y:auto;
+  margin-top:5px;
+}
+hr {
+  margin:15px 0;
+}
 </style>
 </head>
 
@@ -25,8 +81,8 @@ button{padding:10px;border:none;border-radius:8px;margin:5px 2px;cursor:pointer;
 
 <div class="container">
 
+<!-- BUSCAR Y AGREGAR CLIENTE -->
 <input id="buscar" placeholder="Buscar cliente...">
-
 <input id="cliente" placeholder="Nombre del cliente">
 <button onclick="agregarCliente()">Agregar cliente</button>
 
@@ -34,25 +90,24 @@ button{padding:10px;border:none;border-radius:8px;margin:5px 2px;cursor:pointer;
 
 <hr>
 
+<!-- PANEL DE JUICIOS -->
 <div id="panelJuicios" class="hidden">
 
 <h3 id="titulo"></h3>
 
 <input id="juicioNombre" placeholder="Nombre del juicio">
 <input id="juicioEstado" placeholder="Estado procesal">
-
 <button onclick="agregarJuicio()">Agregar juicio</button>
 
 <div id="juicios"></div>
 
-<button onclick="volver()">Volver</button>
+<button onclick="volver()">⬅ Volver a clientes</button>
 
 </div>
 
 </div>
 
 <script>
-
 const inputCliente = document.getElementById("cliente");
 const inputBuscar = document.getElementById("buscar");
 const contClientes = document.getElementById("clientes");
@@ -65,11 +120,11 @@ const juicioEstado = document.getElementById("juicioEstado");
 let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
 let clienteActual = null;
 
-function guardar(){
+function guardar() {
   localStorage.setItem("clientes", JSON.stringify(clientes));
 }
 
-function agregarCliente(){
+function agregarCliente() {
   let nombre = inputCliente.value.trim();
   if(!nombre) return;
 
@@ -79,7 +134,7 @@ function agregarCliente(){
   mostrarClientes();
 }
 
-function mostrarClientes(){
+function mostrarClientes() {
   let filtro = inputBuscar.value.toLowerCase();
   contClientes.innerHTML="";
 
@@ -99,26 +154,26 @@ function mostrarClientes(){
   });
 }
 
-function abrirCliente(i){
+function abrirCliente(i) {
   clienteActual=i;
   panelJuicios.classList.remove("hidden");
   titulo.innerText="Juicios de "+clientes[i].nombre;
   mostrarJuicios();
 }
 
-function volver(){
+function volver() {
   panelJuicios.classList.add("hidden");
 }
 
-function agregarJuicio(){
+function agregarJuicio() {
   if(clienteActual===null) return;
 
-  let nombre=juicioNombre.value.trim();
-  let estado=juicioEstado.value.trim();
+  let nombre = juicioNombre.value.trim();
+  let estado = juicioEstado.value.trim();
 
-  if(!nombre||!estado) return;
+  if(!nombre || !estado) return;
 
-  clientes[clienteActual].juicios.push({nombre,estado});
+  clientes[clienteActual].juicios.push({nombre, estado});
   guardar();
 
   juicioNombre.value="";
@@ -128,7 +183,7 @@ function agregarJuicio(){
   mostrarClientes();
 }
 
-function mostrarJuicios(){
+function mostrarJuicios() {
   contJuicios.innerHTML="";
 
   clientes[clienteActual].juicios.forEach((j,i)=>{
@@ -146,25 +201,25 @@ function mostrarJuicios(){
   });
 }
 
-function editar(i){
+function editar(i) {
   let nuevo = prompt("Nuevo estado procesal:");
   if(!nuevo) return;
 
-  clientes[clienteActual].juicios[i].estado=nuevo;
+  clientes[clienteActual].juicios[i].estado = nuevo;
   guardar();
   mostrarJuicios();
 }
 
-function eliminarCliente(i){
-  if(confirm("Eliminar cliente?")){
+function eliminarCliente(i) {
+  if(confirm("Eliminar cliente?")) {
     clientes.splice(i,1);
     guardar();
     mostrarClientes();
   }
 }
 
-function eliminarJuicio(i){
-  if(confirm("Eliminar juicio?")){
+function eliminarJuicio(i) {
+  if(confirm("Eliminar juicio?")) {
     clientes[clienteActual].juicios.splice(i,1);
     guardar();
     mostrarJuicios();
@@ -173,9 +228,7 @@ function eliminarJuicio(i){
 }
 
 inputBuscar.addEventListener("keyup", mostrarClientes);
-
 mostrarClientes();
-
 </script>
 
 </body>
