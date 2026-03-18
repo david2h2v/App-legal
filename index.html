@@ -1,91 +1,226 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>App Legal</title>
+<meta charset="UTF-8">
+<title>App Legal</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  font-family: Arial;
+  margin:0;
+  background:#f0f2f5;
+}
+
+header{
+  background:#1e2a38;
+  color:white;
+  padding:15px;
+  text-align:center;
+  font-size:18px;
+}
+
+.container{
+  padding:10px;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  margin:5px 2px;
+  cursor:pointer;
+}
+
+.btn{
+  background:#1e2a38;
+  color:white;
+}
+
+.card{
+  background:white;
+  padding:10px;
+  margin:8px 0;
+  border-radius:10px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.small{
+  font-size:13px;
+  color:#555;
+}
+
+.menu button{
+  background:#ddd;
+}
+
+.hidden{
+  display:none;
+}
+</style>
 </head>
+
 <body>
 
-<h2>Clientes</h2>
+<header>App Legal</header>
+
+<div class="container">
+
+<input type="text" id="buscar" placeholder="Buscar cliente...">
 
 <input type="text" id="cliente" placeholder="Nombre del cliente">
-<button onclick="agregarCliente()">Agregar</button>
+<button class="btn" onclick="agregarCliente()">Agregar cliente</button>
 
-<ul id="lista"></ul>
+<div id="clientes"></div>
 
 <hr>
 
+<div id="panelJuicios" class="hidden">
+
 <h3 id="titulo"></h3>
-<ul id="juicios"></ul>
+
+<input type="text" id="juicioNombre" placeholder="Nombre del juicio">
+<input type="text" id="juicioEstado" placeholder="Estado procesal">
+
+<button class="btn" onclick="agregarJuicio()">Agregar juicio</button>
+
+<div id="juicios"></div>
+
+<button onclick="volver()">⬅ Volver</button>
+
+</div>
+
+</div>
 
 <script>
+
 let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
 let clienteActual = null;
 
-function guardar() {
+function guardar(){
   localStorage.setItem("clientes", JSON.stringify(clientes));
 }
 
-function agregarCliente() {
-  let nombre = document.getElementById("cliente").value;
-  if(nombre === "") return;
+function agregarCliente(){
+  let nombre = cliente.value.trim();
+  if(!nombre) return;
 
-  clientes.push({nombre: nombre, juicios: []});
+  clientes.push({nombre, juicios:[]});
   guardar();
+  cliente.value="";
   mostrarClientes();
-  document.getElementById("cliente").value = "";
 }
 
-function mostrarClientes() {
-  let lista = document.getElementById("lista");
-  lista.innerHTML = "";
+function mostrarClientes(){
+  let filtro = buscar.value.toLowerCase();
+  clientesDiv.innerHTML="";
 
-  clientes.forEach((c, index) => {
-    let item = document.createElement("li");
-    item.innerHTML = c.nombre + 
-      " <button onclick='verJuicios("+index+")'>Ver</button>";
-    lista.appendChild(item);
+  clientes.forEach((c,i)=>{
+    if(!c.nombre.toLowerCase().includes(filtro)) return;
+
+    clientesDiv.innerHTML+=`
+    <div class="card">
+      <div class="row">
+        <b onclick="abrirCliente(${i})">${c.nombre}</b>
+        <div class="menu">
+          <button onclick="eliminarCliente(${i})">🗑</button>
+        </div>
+      </div>
+      <div class="small">${c.juicios.length} juicios</div>
+    </div>`;
   });
 }
 
-function verJuicios(i) {
-  clienteActual = i;
-  document.getElementById("titulo").innerText = "Juicios de " + clientes[i].nombre;
-
-  let nombre = prompt("Nombre del juicio:");
-  let estado = prompt("Estado procesal:");
-
-  if(nombre && estado){
-    clientes[i].juicios.push({nombre, estado});
-    guardar();
-  }
-
+function abrirCliente(i){
+  clienteActual=i;
+  panelJuicios.classList.remove("hidden");
+  titulo.innerText="Juicios de "+clientes[i].nombre;
   mostrarJuicios();
 }
 
-function mostrarJuicios() {
-  let lista = document.getElementById("juicios");
-  lista.innerHTML = "";
+function volver(){
+  panelJuicios.classList.add("hidden");
+}
 
-  if(clienteActual === null) return;
+function agregarJuicio(){
+  let nombre=juicioNombre.value.trim();
+  let estado=juicioEstado.value.trim();
 
-  clientes[clienteActual].juicios.forEach((j, index) => {
-    let item = document.createElement("li");
-    item.innerHTML = j.nombre + " - " + j.estado +
-      " <button onclick='editar("+index+")'>Editar</button>";
-    lista.appendChild(item);
+  if(!nombre||!estado) return;
+
+  clientes[clienteActual].juicios.push({nombre,estado});
+  guardar();
+
+  juicioNombre.value="";
+  juicioEstado.value="";
+
+  mostrarJuicios();
+  mostrarClientes();
+}
+
+function mostrarJuicios(){
+  juicios.innerHTML="";
+
+  clientes[clienteActual].juicios.forEach((j,i)=>{
+    juicios.innerHTML+=`
+    <div class="card">
+      <div class="row">
+        <b>${j.nombre}</b>
+        <div class="menu">
+          <button onclick="editar(${i})">✏</button>
+          <button onclick="eliminarJuicio(${i})">🗑</button>
+        </div>
+      </div>
+      <div class="small">${j.estado}</div>
+    </div>`;
   });
 }
 
-function editar(i) {
-  let nuevoEstado = prompt("Nuevo estado procesal:");
-  if(nuevoEstado){
-    clientes[clienteActual].juicios[i].estado = nuevoEstado;
+function editar(i){
+  let nuevo = prompt("Nuevo estado procesal:");
+  if(!nuevo) return;
+
+  clientes[clienteActual].juicios[i].estado=nuevo;
+  guardar();
+  mostrarJuicios();
+}
+
+function eliminarCliente(i){
+  if(confirm("Eliminar cliente?")){
+    clientes.splice(i,1);
     guardar();
-    mostrarJuicios();
+    mostrarClientes();
   }
 }
 
+function eliminarJuicio(i){
+  if(confirm("Eliminar juicio?")){
+    clientes[clienteActual].juicios.splice(i,1);
+    guardar();
+    mostrarJuicios();
+    mostrarClientes();
+  }
+}
+
+buscar.addEventListener("keyup", mostrarClientes);
+
 mostrarClientes();
+
 </script>
 
 </body>
