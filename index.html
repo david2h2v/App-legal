@@ -12,38 +12,80 @@
 
 <ul id="lista"></ul>
 
+<hr>
+
+<h3 id="titulo"></h3>
+<ul id="juicios"></ul>
+
 <script>
-let clientes = [];
+let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+let clienteActual = null;
+
+function guardar() {
+  localStorage.setItem("clientes", JSON.stringify(clientes));
+}
 
 function agregarCliente() {
   let nombre = document.getElementById("cliente").value;
   if(nombre === "") return;
 
   clientes.push({nombre: nombre, juicios: []});
-  mostrar();
+  guardar();
+  mostrarClientes();
   document.getElementById("cliente").value = "";
 }
 
-function mostrar() {
+function mostrarClientes() {
   let lista = document.getElementById("lista");
   lista.innerHTML = "";
 
   clientes.forEach((c, index) => {
     let item = document.createElement("li");
-    item.innerHTML = c.nombre + " <button onclick='verJuicios("+index+")'>Ver juicios</button>";
+    item.innerHTML = c.nombre + 
+      " <button onclick='verJuicios("+index+")'>Ver</button>";
     lista.appendChild(item);
   });
 }
 
 function verJuicios(i) {
+  clienteActual = i;
+  document.getElementById("titulo").innerText = "Juicios de " + clientes[i].nombre;
+
   let nombre = prompt("Nombre del juicio:");
   let estado = prompt("Estado procesal:");
 
   if(nombre && estado){
     clientes[i].juicios.push({nombre, estado});
-    alert("Juicio agregado");
+    guardar();
+  }
+
+  mostrarJuicios();
+}
+
+function mostrarJuicios() {
+  let lista = document.getElementById("juicios");
+  lista.innerHTML = "";
+
+  if(clienteActual === null) return;
+
+  clientes[clienteActual].juicios.forEach((j, index) => {
+    let item = document.createElement("li");
+    item.innerHTML = j.nombre + " - " + j.estado +
+      " <button onclick='editar("+index+")'>Editar</button>";
+    lista.appendChild(item);
+  });
+}
+
+function editar(i) {
+  let nuevoEstado = prompt("Nuevo estado procesal:");
+  if(nuevoEstado){
+    clientes[clienteActual].juicios[i].estado = nuevoEstado;
+    guardar();
+    mostrarJuicios();
   }
 }
+
+mostrarClientes();
 </script>
 
 </body>
