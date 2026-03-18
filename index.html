@@ -3,75 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <title>App Legal</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{
-  font-family: Arial;
-  margin:0;
-  background:#f0f2f5;
-}
-
-header{
-  background:#1e2a38;
-  color:white;
-  padding:15px;
-  text-align:center;
-  font-size:18px;
-}
-
-.container{
-  padding:10px;
-}
-
-input{
-  width:100%;
-  padding:10px;
-  margin:5px 0;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-button{
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  margin:5px 2px;
-  cursor:pointer;
-}
-
-.btn{
-  background:#1e2a38;
-  color:white;
-}
-
-.card{
-  background:white;
-  padding:10px;
-  margin:8px 0;
-  border-radius:10px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
-
-.row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.small{
-  font-size:13px;
-  color:#555;
-}
-
-.menu button{
-  background:#ddd;
-}
-
-.hidden{
-  display:none;
-}
+body{font-family:Arial;margin:0;background:#f0f2f5;}
+header{background:#1e2a38;color:white;padding:15px;text-align:center;}
+.container{padding:10px;}
+input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc;}
+button{padding:10px;border:none;border-radius:8px;margin:5px 2px;cursor:pointer;background:#1e2a38;color:white;}
+.card{background:white;padding:10px;margin:8px 0;border-radius:10px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+.row{display:flex;justify-content:space-between;align-items:center;}
+.small{font-size:13px;color:#555;}
+.menu button{background:#ddd;color:black;}
+.hidden{display:none;}
 </style>
 </head>
 
@@ -81,10 +25,10 @@ button{
 
 <div class="container">
 
-<input type="text" id="buscar" placeholder="Buscar cliente...">
+<input id="buscar" placeholder="Buscar cliente...">
 
-<input type="text" id="cliente" placeholder="Nombre del cliente">
-<button class="btn" onclick="agregarCliente()">Agregar cliente</button>
+<input id="cliente" placeholder="Nombre del cliente">
+<button onclick="agregarCliente()">Agregar cliente</button>
 
 <div id="clientes"></div>
 
@@ -94,20 +38,29 @@ button{
 
 <h3 id="titulo"></h3>
 
-<input type="text" id="juicioNombre" placeholder="Nombre del juicio">
-<input type="text" id="juicioEstado" placeholder="Estado procesal">
+<input id="juicioNombre" placeholder="Nombre del juicio">
+<input id="juicioEstado" placeholder="Estado procesal">
 
-<button class="btn" onclick="agregarJuicio()">Agregar juicio</button>
+<button onclick="agregarJuicio()">Agregar juicio</button>
 
 <div id="juicios"></div>
 
-<button onclick="volver()">⬅ Volver</button>
+<button onclick="volver()">Volver</button>
 
 </div>
 
 </div>
 
 <script>
+
+const inputCliente = document.getElementById("cliente");
+const inputBuscar = document.getElementById("buscar");
+const contClientes = document.getElementById("clientes");
+const panelJuicios = document.getElementById("panelJuicios");
+const titulo = document.getElementById("titulo");
+const contJuicios = document.getElementById("juicios");
+const juicioNombre = document.getElementById("juicioNombre");
+const juicioEstado = document.getElementById("juicioEstado");
 
 let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
 let clienteActual = null;
@@ -117,23 +70,23 @@ function guardar(){
 }
 
 function agregarCliente(){
-  let nombre = cliente.value.trim();
+  let nombre = inputCliente.value.trim();
   if(!nombre) return;
 
   clientes.push({nombre, juicios:[]});
   guardar();
-  cliente.value="";
+  inputCliente.value="";
   mostrarClientes();
 }
 
 function mostrarClientes(){
-  let filtro = buscar.value.toLowerCase();
-  clientesDiv.innerHTML="";
+  let filtro = inputBuscar.value.toLowerCase();
+  contClientes.innerHTML="";
 
   clientes.forEach((c,i)=>{
     if(!c.nombre.toLowerCase().includes(filtro)) return;
 
-    clientesDiv.innerHTML+=`
+    contClientes.innerHTML+=`
     <div class="card">
       <div class="row">
         <b onclick="abrirCliente(${i})">${c.nombre}</b>
@@ -158,6 +111,8 @@ function volver(){
 }
 
 function agregarJuicio(){
+  if(clienteActual===null) return;
+
   let nombre=juicioNombre.value.trim();
   let estado=juicioEstado.value.trim();
 
@@ -174,10 +129,10 @@ function agregarJuicio(){
 }
 
 function mostrarJuicios(){
-  juicios.innerHTML="";
+  contJuicios.innerHTML="";
 
   clientes[clienteActual].juicios.forEach((j,i)=>{
-    juicios.innerHTML+=`
+    contJuicios.innerHTML+=`
     <div class="card">
       <div class="row">
         <b>${j.nombre}</b>
@@ -217,7 +172,7 @@ function eliminarJuicio(i){
   }
 }
 
-buscar.addEventListener("keyup", mostrarClientes);
+inputBuscar.addEventListener("keyup", mostrarClientes);
 
 mostrarClientes();
 
