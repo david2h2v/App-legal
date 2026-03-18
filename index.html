@@ -2,72 +2,48 @@
 <html>
 <head>
   <title>App Legal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: Arial; padding: 10px; }
-    input, button { padding: 10px; margin: 5px 0; width: 100%; }
-    .card { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
-  </style>
 </head>
 <body>
 
 <h2>Clientes</h2>
 
-<input id="cliente" placeholder="Nombre del cliente">
-<button onclick="agregarCliente()">Agregar cliente</button>
+<input type="text" id="cliente" placeholder="Nombre del cliente">
+<button onclick="agregarCliente()">Agregar</button>
 
-<div id="listaClientes"></div>
+<ul id="lista"></ul>
 
 <script>
-let data = JSON.parse(localStorage.getItem("data")) || [];
-
-function guardar() {
-  localStorage.setItem("data", JSON.stringify(data));
-}
+let clientes = [];
 
 function agregarCliente() {
   let nombre = document.getElementById("cliente").value;
-  if (!nombre) return;
-  data.push({ nombre, juicios: [] });
-  guardar();
-  mostrar();
-}
+  if(nombre === "") return;
 
-function agregarJuicio(index) {
-  let tipo = prompt("Tipo de juicio:");
-  if (!tipo) return;
-  data[index].juicios.push({ tipo, estado: "Inicio" });
-  guardar();
+  clientes.push({nombre: nombre, juicios: []});
   mostrar();
-}
-
-function editarEstado(i, j) {
-  let nuevo = prompt("Nuevo estado procesal:");
-  if (!nuevo) return;
-  data[i].juicios[j].estado = nuevo;
-  guardar();
-  mostrar();
+  document.getElementById("cliente").value = "";
 }
 
 function mostrar() {
-  let html = "";
-  data.forEach((c, i) => {
-    html += `<div class="card">
-      <b>${c.nombre}</b><br>
-      <button onclick="agregarJuicio(${i})">Agregar juicio</button>
-    `;
-    c.juicios.forEach((j, k) => {
-      html += `<div>
-        - ${j.tipo}: ${j.estado}
-        <button onclick="editarEstado(${i}, ${k})">Editar</button>
-      </div>`;
-    });
-    html += `</div>`;
+  let lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  clientes.forEach((c, index) => {
+    let item = document.createElement("li");
+    item.innerHTML = c.nombre + " <button onclick='verJuicios("+index+")'>Ver juicios</button>";
+    lista.appendChild(item);
   });
-  document.getElementById("listaClientes").innerHTML = html;
 }
 
-mostrar();
+function verJuicios(i) {
+  let nombre = prompt("Nombre del juicio:");
+  let estado = prompt("Estado procesal:");
+
+  if(nombre && estado){
+    clientes[i].juicios.push({nombre, estado});
+    alert("Juicio agregado");
+  }
+}
 </script>
 
 </body>
