@@ -2,9 +2,73 @@
 <html>
 <head>
   <title>App Legal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial; padding: 10px; }
+    input, button { padding: 10px; margin: 5px 0; width: 100%; }
+    .card { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+  </style>
 </head>
 <body>
-  <h1>Mi App Legal</h1>
-  <p>Aquí irá mi sistema de clientes y juicios</p>
+
+<h2>Clientes</h2>
+
+<input id="cliente" placeholder="Nombre del cliente">
+<button onclick="agregarCliente()">Agregar cliente</button>
+
+<div id="listaClientes"></div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("data")) || [];
+
+function guardar() {
+  localStorage.setItem("data", JSON.stringify(data));
+}
+
+function agregarCliente() {
+  let nombre = document.getElementById("cliente").value;
+  if (!nombre) return;
+  data.push({ nombre, juicios: [] });
+  guardar();
+  mostrar();
+}
+
+function agregarJuicio(index) {
+  let tipo = prompt("Tipo de juicio:");
+  if (!tipo) return;
+  data[index].juicios.push({ tipo, estado: "Inicio" });
+  guardar();
+  mostrar();
+}
+
+function editarEstado(i, j) {
+  let nuevo = prompt("Nuevo estado procesal:");
+  if (!nuevo) return;
+  data[i].juicios[j].estado = nuevo;
+  guardar();
+  mostrar();
+}
+
+function mostrar() {
+  let html = "";
+  data.forEach((c, i) => {
+    html += `<div class="card">
+      <b>${c.nombre}</b><br>
+      <button onclick="agregarJuicio(${i})">Agregar juicio</button>
+    `;
+    c.juicios.forEach((j, k) => {
+      html += `<div>
+        - ${j.tipo}: ${j.estado}
+        <button onclick="editarEstado(${i}, ${k})">Editar</button>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById("listaClientes").innerHTML = html;
+}
+
+mostrar();
+</script>
+
 </body>
 </html>
